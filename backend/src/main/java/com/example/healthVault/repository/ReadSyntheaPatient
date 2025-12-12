@@ -1,0 +1,23 @@
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
+import org.hl7.fhir.r4.model.Patient;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+public class ReadSyntheaPatient {
+    public static void main(String[] args) throws Exception {
+        String filePath = "output/fhir/";
+        String json = Files.readString(Paths.get(filePath));
+
+        FhirContext ctx = FhirContext.forR4();
+        IParser parser = ctx.newJsonParser();
+        Patient patient = parser.parseResource(Patient.class, json);
+
+        System.out.println("Patient Name: " + patient.getNameFirstRep().getNameAsSingleString());
+        patient.getIdentifier().forEach(id -> {
+            String type = id.hasType() ? id.getType().getText() : "Unknown Type";
+            System.out.println(type + ": " + id.getValue());
+        });
+    }
+}
